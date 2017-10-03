@@ -5,3 +5,6 @@
 /theme/node_modules
 /theme/npm-debug.log
 /theme/vendor
+/mysql
+/logs
+/uploads
