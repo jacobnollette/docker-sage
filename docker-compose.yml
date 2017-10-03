@@ -1,0 +1,50 @@
+version: '3'
+
+services:
+
+    nginx:
+        image: nginx:latest
+        ports:
+            - '8003:80'
+        links:
+            - wordpress
+        volumes:
+            - ./config/nginx:/etc/nginx/conf.d
+            - ./logs/:/var/log/nginx/
+            - wordpress_data:/var/www/html
+            - ./theme:/var/www/html/wp-content/themes/lisa_rehm
+            - ./plugins:/var/www/html/wp-content/plugins
+            - ./uploads:/var/www/html/wp-content/uploads
+        restart: always
+    db:
+        image: mariadb
+        ports:
+            - '8103:3306'
+        volumes:
+            - ./mysql:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=somewordpress
+            - MYSQL_DATABASE=wordpress
+            - MYSQL_USER=wordpress
+            - MYSQL_PASSWORD=wordpress
+
+        restart: always
+
+    wordpress:
+        links:
+            - db
+        image: wordpress:4.8.0-php7.0-fpm
+        volumes:
+            - wordpress_data:/var/www/html
+            - ./theme:/var/www/html/wp-content/themes/lisa_rehm
+            - ./plugins:/var/www/html/wp-content/plugins
+            - ./uploads:/var/www/html/wp-content/uploads
+            - ./config/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
+        restart: always
+        environment:
+            - WORDPRESS_DB_HOST=db
+            - WORDPRESS_DB_USER=wordpress
+            - WORDPRESS_DB_PASSWORD=wordpress
+            - WORDPRESS_DB_NAME=wordpress
+volumes:
+     wordpress_data:
