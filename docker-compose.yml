@@ -1,25 +1,24 @@
 version: '3'
 
 services:
-
     nginx:
-        image: nginx:latest
+        image: nginx:1.13
         ports:
-            - '8003:80'
+            - '8000:80'
         links:
-            - wordpress
+            -  wordpress
         volumes:
             - ./config/nginx:/etc/nginx/conf.d
             - ./logs/:/var/log/nginx/
             - wordpress_data:/var/www/html
-            - ./theme:/var/www/html/wp-content/themes/lisa_rehm
+            - ./theme:/var/www/html/wp-content/themes/the_theme
             - ./plugins:/var/www/html/wp-content/plugins
             - ./uploads:/var/www/html/wp-content/uploads
         restart: always
     db:
-        image: mariadb
+        image: mariadb:10.2
         ports:
-            - '8103:3306'
+            #- '9002:3306'
         volumes:
             - ./mysql:/var/lib/mysql
         environment:
@@ -33,18 +32,25 @@ services:
     wordpress:
         links:
             - db
-        image: wordpress:4.8.0-php7.0-fpm
+            - mailhog
+        image: jnollette/wordpress_development_cli:latest
         volumes:
             - wordpress_data:/var/www/html
-            - ./theme:/var/www/html/wp-content/themes/lisa_rehm
+            - ./theme:/var/www/html/wp-content/themes/the_theme
             - ./plugins:/var/www/html/wp-content/plugins
             - ./uploads:/var/www/html/wp-content/uploads
-            - ./config/php/uploads.ini:/usr/local/etc/php/conf.d/uploads.ini
         restart: always
         environment:
             - WORDPRESS_DB_HOST=db
             - WORDPRESS_DB_USER=wordpress
             - WORDPRESS_DB_PASSWORD=wordpress
             - WORDPRESS_DB_NAME=wordpress
+            - WORDPRESS_DEBUG=true
+    mailhog:
+        image: mailhog/mailhog
+        ports:
+            #- 1025:1025
+            - 8100:8025
+            
 volumes:
      wordpress_data:
